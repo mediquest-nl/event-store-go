@@ -1,4 +1,5 @@
 // Package p contains an HTTP Cloud Function.
+//package main  // for compiler test of code only
 package p
 
 import (
@@ -8,7 +9,7 @@ import (
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 	//"html"
 	"net/http"
-        "strings"
+	"strings"
 )
 
 // HelloWorld prints the JSON encoded "message" field in the body
@@ -26,15 +27,22 @@ func StoreEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-    var reqStr = fmt.Sprint(r)
-    reqStr = strings.Replace(reqStr, "'", "\\'", -1) // escape single quotes in string (we should also escape backslashes
+	var reqStr = fmt.Sprint(r)
+	reqStr = strings.Replace(reqStr, "'", "\\'", -1) // escape single quotes in string (we should also escape backslashes
 	var qry string = fmt.Sprint("INSERT INTO Events (EventMsg) VALUES ('", reqStr, "')")
 	_, err = db.Exec(qry)
 
 	w.Header().Add("Content-Type", "text/html")
 	var body string = fmt.Sprint("<html><head>TEST</head><body>Hello World<p>", err, "</p></body></html>")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.Write([]byte(body))
 	return
 }
 
+/*
+func main() {
 
+}
+*/
